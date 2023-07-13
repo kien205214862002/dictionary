@@ -1,0 +1,94 @@
+version: '3.9'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+      - 9300:9300
+    restart: always
+
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/kibana/kibana:7.10.2
+    ports:
+     - 5601:5601
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  zookeeper:
+    hostname: zookeeper
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    expose:
+      - "2181"
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    restart: "no"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=test-kafka-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+      - KAFKA_CLUSTERS_0_READONLY=true
+
+#  consumer:
+#    build:
+#      context: ./consumer
+#      dockerfile: Dockerfile
+#    restart: always
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - kafka
+#
+#  ingester:
+#      build:
+#        context: ./ingester
+#        dockerfile: Dockerfile
+#      restart: always
+#      ports:
+#        - "3100:3100"
+#      depends_on:
+#        - kafka
+#
+#  word:
+#      build:
+#        context: ./word-api
+#        dockerfile: Dockerfile
+#      restart: always
+#      ports:
+#        - "3200:3200"
+#      depends_on:
+#        - elasticsearch
