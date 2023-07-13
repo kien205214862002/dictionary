@@ -10,7 +10,7 @@ Main dependencies:
 ## Project Architecture
 
 ![Screenshot](Project-Architecture.png)
-<img width="1455" alt="Project-Architecture" src="https://github.com/tanphattrc/dictionary/assets/76809323/08164535-b2c0-4417-947d-e13055fb8415">
+<img width="1455" alt="Project-Architecture" src="https://github.com/tanphattrc/dictionary/blob/master/Project-Architecture.png">
 ## Motivation
 
 Imagine you have English words with their meanings and example sentences in your Excel sheet in your drive. However, because you are really hardworking, these sheets' size is expanding day by day. You can not search words quickly because the sheet is frozen. As a result, you need an application to search your words quickly.
